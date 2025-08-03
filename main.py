@@ -41,14 +41,14 @@ import shutil
 import ffmpeg
 
 # Initialize the bot
-api_id = int(os.getenv("API_ID"))
-api_hash = os.getenv("API_HASH")
+API_HASH = "0c9262b17a45cb67b447ffd8e38f1e4d"
+API_ID = "22274497"
 bot_token = os.getenv("BOT_TOKEN")
 MR = os.getenv("MR")  # Optional custom variable
 
 bot = Client("bot",
-             api_id=api_id,
-             api_hash=api_hash,
+             api_id=API_ID,
+             api_hash=API_HASH,
              bot_token=bot_token)
 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
