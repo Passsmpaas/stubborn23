@@ -120,10 +120,6 @@ image_urls = [
 
 @bot.on_message(filters.command("changetoken") & filters.private)
 async def changetoken_handler(client: Client, message: Message):
-    if message.from_user.id not in owner_id:
-        await message.reply_text("🚫 Only the bot owner can use this command!")
-        return
-
     args = message.text.split(" ", 1)
     if len(args) < 2:
         await message.reply_text("⚠️ Please provide the new token! Usage: /changetoken <new_token>")
