@@ -41,10 +41,10 @@ import shutil
 import ffmpeg
 
 # Initialize the bot
-api_id = "22274497"
-api_hash = "0c9262b17a45cb67b447ffd8e38f1e4d"
-bot_token = "7410856765:AAGI-U03494htUNf35KYxaXBW4lCoD_icYo"
-MR = "rajasthni_king" # Optional custom variable
+api_id = int(os.getenv("API_ID"))
+api_hash = os.getenv("API_HASH")
+bot_token = os.getenv("BOT_TOKEN")
+MR = os.getenv("MR")  # Optional custom variable
 
 bot = Client("bot",
              api_id=api_id,
