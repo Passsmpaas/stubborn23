@@ -415,7 +415,7 @@ async def txt_handler(bot: Client, m: Message):
     await m.reply_text(f"__**🎯Target Batch : {b_name}**__")
 
     failed_count = 0
-    count =int(raw_text)    
+    count = int(raw_text)
     arg = int(raw_text)
     try:
         for i in range(arg-1, len(links)):
@@ -433,21 +433,19 @@ async def txt_handler(bot: Client, m: Message):
                         url = re.search(r"(https://.*?playlist.m3u8.*?)\"", text).group(1)
 
             if "acecwply" in url:
-                cmd = f'yt-dlp -o "{name}.%(ext)s" -f "bestvideo[height<={raw_text2}]+bestaudio" --hls-prefer-ffmpeg --no-keep-video --remux-video mkv --no-warning "{url}"'
+                cmd = f'yt-dlp -o "{name}.%(ext)s" -f "bestvideo[height<=720]+bestaudio" --hls-prefer-ffmpeg --no-keep-video --remux-video mkv --no-warning "{url}"'
 
             elif "edge.api.brightcove.com" in url:
                     new_bcov_token = "bcov_auth=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3NDc0NzY5MzEsImNvbiI6eyJpc0FkbWluIjpmYWxzZSwiYXVzZXIiOiJVMFZ6TkdGU2NuQlZjR3h5TkZwV09FYzBURGxOZHowOSIsImlkIjoiUkZCSFpGUmhObWhEZFhZMFNUSTFhM0FyU1RVemR6MDkiLCJmaXJzdF9uYW1lIjoiTldwbGFWcFNOVXRUTm1sU1JFdGpLelpuYm1SQ1FUMDkiLCJlbWFpbCI6IlkxaHdNelZVUTFjeE1IQmpTMmhDYVdWYVZuRkZlazVwWVRKbU4zbGFkRGhJV1VWbVNHRktVV3BoY3owPSIsInBob25lIjoiZWtZdk1rUmxURVpEZURSdlUyaHpZbGRpV0drM2R6MDkiLCJhdmF0YXIiOiJLM1ZzY1M4elMwcDBRbmxrYms4M1JEbHZla05pVVQwOSIsInJlZmVycmFsX2NvZGUiOiJhemhKSzNwbFZHeDFXa2xKYWxWTFdscEpiMEphUVQwOSIsImRldmljZV90eXBlIjoiYW5kcm9pZCIsImRldmljZV92ZXJzaW9uIjoiUShBbmRyb2lkIDEwLjApIiwiZGV2aWNlX21vZGVsIjoiWGlhb21pIE0yMDA3SjIwQ0kiLCJyZW1vdGVfYWRkciI6IjE4LjIxMy4xMTUuMTA1In19.hUp4gzFCXKUg6jhosLP0YXkHHAvU7K9uwXT22k02UALahUtcRI_EwVnVaheS54n-GUBCvFjQokhqsNfWyNTiljbx_hRAA19X67qzTBU8qdJuNxfhgKloGpR9aB7qybkqN4QzOBliSb7JNPAICQ_TtfUIqH1N5DCnLldvBBLoayejefCTTe012VHHkTCnsp3HnypcgMFu5Tsaw-Gvzz80e6RwlWVgivU5s2h9OtMgbrKMVbvnsvnRQS08zbu0Z7-4ZN_HzfoQ9SGliXqlpxJKVZCCBwHM5UVUTSqMNamHv-YnsjPVfAJoOTzkRY0Ka_AU5SWSXJhpPqh7fHGWtT8KYw"
                     
-                    # Remove any existing bcov_auth if present
                     if "bcov_auth=" in url:
                         url = url.split("bcov_auth=")[0].rstrip("?&")
                     
-                    # Add new token with proper separator
                     separator = "&" if "?" in url else "?"
                     url = f"{url}{separator}{new_bcov_token}"
 
             elif "/khansirvod4" in url and "akamaized" in url:
-                 url = url.replace(url.split("/")[-1], raw_text2+".m3u8")
+                 url = url.replace(url.split("/")[-1], "720.m3u8")
  
             elif "https://cpvod.testbook.com/" in url:
                 url = url.replace("https://cpvod.testbook.com/", "https://media-cdn.classplusapp.com/drm/")
@@ -462,7 +460,6 @@ async def txt_handler(bot: Client, m: Message):
                 url = mpd
                 keys_string = " ".join([f"--key {key}" for key in keys])
 
-
             elif any(domain in url for domain in [
                 'videos.classplusapp.com',
                 'tencdn.classplusapp.com',
@@ -472,12 +469,11 @@ async def txt_handler(bot: Client, m: Message):
                 'media-cdn-a.classplusapp.com'
             ]):
                 try:
-                    # ✅ Correct and updated headers
                     headers = {
                         'x-access-token': token_cp,
                         'accept-language': 'en',
-                        'api-version': '52',  # ✅ Updated to latest
-                        'app-version': '1.4.65.3',  # ✅ Based on releaseVersion
+                        'api-version': '52',
+                        'app-version': '1.4.65.3',
                         'build-number': '35',
                         'connection': 'Keep-Alive',
                         'content-type': 'application/json',
@@ -488,11 +484,9 @@ async def txt_handler(bot: Client, m: Message):
                         'accept-encoding': 'gzip'
                     }
 
-                    # ✅ Add X-CDN-Tag if required
                     if "media-cdn" in url:
                         headers['X-CDN-Tag'] = 'empty'
 
-                    # 🔗 Request to JW Signed URL endpoint
                     api = f'https://api.classplusapp.com/cams/uploader/video/jw-signed-url?url={url}'
                     response = requests.get(api, headers=headers, timeout=10)
 
@@ -510,21 +504,11 @@ async def txt_handler(bot: Client, m: Message):
                 except Exception as e:
                     url += f"  [❌ SIGNED URL FAILED: {str(e)}]"
 
-
             elif "childId" in url and "parentId" in url:
                 url = f"https://anonymousrajputplayer-9ab2f2730a02.herokuapp.com/pw?url={url}&token={raw_text4}"
                            
             elif "d1d34p8vz63oiq" in url or "sec1.pw.live" in url:
                  url = f"https://anonymousrajputplayer-9ab2f2730a02.herokuapp.com/pw?url={url}&token={raw_text4}"
-                #url =  f"{api_url}pw-dl?url={url}&token={raw_text4}&authorization={api_token}&q={raw_text2}"
-                #url = f"https://dl.alphacbse.site/download/{vid_id}/master.m3u8"
-            
-            #elif '/master.mpd' in url:    
-                #headers = {"Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NDYyODQwNTYuOTIsImRhdGEiOnsiX2lkIjoiNjdlYTcyYjZmODdlNTNjMWZlNzI5MTRlIiwidXNlcm5hbWUiOiI4MzQ5MjUwMTg1IiwiZmlyc3ROYW1lIjoiSGFycnkiLCJvcmdhbml6YXRpb24iOnsiX2lkIjoiNWViMzkzZWU5NWZhYjc0NjhhNzlkMTg5Iiwid2Vic2l0ZSI6InBoeXNpY3N3YWxsYWguY29tIiwibmFtZSI6IlBoeXNpY3N3YWxsYWgifSwicm9sZXMiOlsiNWIyN2JkOTY1ODQyZjk1MGE3NzhjNmVmIl0sImNvdW50cnlHcm91cCI6IklOIiwidHlwZSI6IlVTRVIifSwiaWF0IjoxNzQ1Njc5MjU2fQ.6WMjQPLUPW-fMCViXERGSqhpFZ-FyX-Vjig7L531Q6U", "client-type": "WEB", "randomId": "142d9660-50df-41c0-8fcb-060609777b03"}
-                #id =  url.split("/")[-2] 
-                #policy = requests.post('https://api.penpencil.xyz/v1/files/get-signed-cookie', headers=headers, json={'url': f"https://d1d34p8vz63oiq.cloudfront.net/" + id + "/master.mpd"}).json()['data']
-                #url = "https://sr-get-video-quality.selav29696.workers.dev/?Vurl=" + "https://d1d34p8vz63oiq.cloudfront.net/" + id + f"/hls/{raw_text2}/main.m3u8" + policy
-                #print(url)
 
             if ".pdf*" in url:
                 url = f"https://dragoapi.vercel.app/pdf/{url}"
@@ -536,11 +520,11 @@ async def txt_handler(bot: Client, m: Message):
                 url = url.split('*')[0]
 
             if "youtu" in url:
-                ytf = f"b[height<={raw_text2}][ext=mp4]/bv[height<={raw_text2}][ext=mp4]+ba[ext=m4a]/b[ext=mp4]"
+                ytf = f"b[height<=720][ext=mp4]/bv[height<=720][ext=mp4]+ba[ext=m4a]/b[ext=mp4]"
             elif "embed" in url:
-                ytf = f"bestvideo[height<={raw_text2}]+bestaudio/best[height<={raw_text2}]"
+                ytf = f"bestvideo[height<=720]+bestaudio/best[height<=720]"
             else:
-                ytf = f"b[height<={raw_text2}]/bv[height<={raw_text2}]+ba/b/bv+ba"
+                ytf = f"b[height<=720]/bv[height<=720]+ba/b/bv+ba"
            
             if "jw-prod" in url:
                 cmd = f'yt-dlp -o "{name}.mp4" "{url}"'
@@ -572,10 +556,10 @@ async def txt_handler(bot: Client, m: Message):
 
                 elif ".pdf" in url:
                     if "cwmediabkt99" in url:
-                        max_retries = 15  # Define the maximum number of retries
-                        retry_delay = 4  # Delay between retries in seconds
-                        success = False  # To track whether the download was successful
-                        failure_msgs = []  # To keep track of failure messages
+                        max_retries = 15
+                        retry_delay = 4
+                        success = False
+                        failure_msgs = []
 
                         for attempt in range(max_retries):
                             try:
@@ -587,12 +571,12 @@ async def txt_handler(bot: Client, m: Message):
                                 if response.status_code == 200:
                                     with open(f'{name}.pdf', 'wb') as file:
                                         file.write(response.content)
-                                    await asyncio.sleep(retry_delay)  # Optional, to prevent spamming
+                                    await asyncio.sleep(retry_delay)
                                     copy = await bot.send_document(chat_id=m.chat.id, document=f'{name}.pdf', caption=cc1)
                                     count += 1
                                     os.remove(f'{name}.pdf')
                                     success = True
-                                    break  # Exit the retry loop if successful
+                                    break
                                 else:
                                     failure_msg = await m.reply_text(f"Attempt {attempt + 1}/{max_retries} failed: {response.status_code} {response.reason}")
                                     failure_msgs.append(failure_msg)
@@ -601,14 +585,12 @@ async def txt_handler(bot: Client, m: Message):
                                 failure_msg = await m.reply_text(f"Attempt {attempt + 1}/{max_retries} failed: {str(e)}")
                                 failure_msgs.append(failure_msg)
                                 await asyncio.sleep(retry_delay)
-                                continue  # Retry the next attempt if an exception occurs
+                                continue
 
-                        # Delete all failure messages if the PDF is successfully downloaded
                         for msg in failure_msgs:
                             await msg.delete()
 
                         if not success:
-                            # Send the final failure message if all retries fail
                             await m.reply_text(f"Failed to download PDF after {max_retries} attempts.\n⚠️**Downloading Failed**⚠️\n**Name** =>> {str(count).zfill(3)} {name1}\n**Url** =>> {link0}", disable_web_page_preview)
 
                     else:
@@ -679,8 +661,6 @@ async def txt_handler(bot: Client, m: Message):
                     except Exception as e:
                         await m.reply_text(f"⚠️ Error: {e}")
 
-
-
                 elif any(ext in url for ext in [".mp3", ".wav", ".m4a"]):
                     try:
                         ext = url.split('.')[-1]
@@ -695,11 +675,10 @@ async def txt_handler(bot: Client, m: Message):
                         time.sleep(e.x)
                         continue    
 
-                    
                 elif 'encrypted.m' in url:    
                     remaining_links = len(links) - count
                     progress = (count / len(links)) * 100
-                    sticker_message = await show_random_sticker(message)
+                    sticker_message = await show_random_sticker(m)
                     Show = (
                         f"<b><i>🌸 Hey cutie, I'm working my magic just for you 💖</i></b>\n"
                         f"<b><i>╰━━━━━━━━━━━━━━━━━━━━━━━━╯</i></b>\n"
@@ -732,7 +711,7 @@ async def txt_handler(bot: Client, m: Message):
                 elif 'drmcdni' in url or 'drm/wv' in url:
                     remaining_links = len(links) - count
                     progress = (count / len(links)) * 100
-                    sticker_message = await show_random_sticker(message)
+                    sticker_message = await show_random_sticker(m)
                     Show = (
                         f"<b><i>🌸 Hey cutie, I'm working my magic just for you 💖</i></b>\n"
                         f"<b><i>╰━━━━━━━━━━━━━━━━━━━━━━━━╯</i></b>\n"
@@ -753,7 +732,7 @@ async def txt_handler(bot: Client, m: Message):
                         f"<b><i>🦋 With all my love, always yours —</i></b> <b><a href='https://t.me/username'>king 🖤</a></b>"
                     )
                     prog = await m.reply_text(Show, disable_web_page_preview=True)
-                    res_file = await helper.decrypt_and_merge_video(mpd, keys_string, path, name, raw_text2)
+                    res_file = await helper.decrypt_and_merge_video(mpd, keys_string, path, name, "720")
                     filename = res_file
                     await sticker_message.delete()
                     await prog.delete(True)
@@ -765,10 +744,7 @@ async def txt_handler(bot: Client, m: Message):
                 else:
                     remaining_links = len(links) - count
                     progress = (count / len(links)) * 100
-                    sticker_message = await show_random_sticker(message)
-
-
-
+                    sticker_message = await show_random_sticker(m)
                     Show = (
                         f"<b><i>🌸 Hey cutie, I'm working my magic just for you 💖</i></b>\n"
                         f"<b><i>╰━━━━━━━━━━━━━━━━━━━━━━━━╯</i></b>\n"
@@ -798,8 +774,8 @@ async def txt_handler(bot: Client, m: Message):
                     count += 1
                     time.sleep(1)
                 
-            except Exception as e:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
-                await m.reply_text(                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+            except Exception as e:
+                await m.reply_text(
                     f"**downloading failed \**\n\n{str(e)}\n\n**Name** - {name}\n**Link** - {url}"
                     )
                 count += 1
@@ -810,8 +786,6 @@ async def txt_handler(bot: Client, m: Message):
         await m.reply_text(e)
         time.sleep(2)
 
-    except Exception as e:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
-        await m.reply_text(e)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
     await m.reply_text("**Sᴜᴄᴄᴇsғᴜʟʟʏ Dᴏᴡɴʟᴏᴀᴅᴇᴅ Aʟʟ Lᴇᴄᴛᴜʀᴇs SIR 👿🚀**")               
                  
 bot.run()
