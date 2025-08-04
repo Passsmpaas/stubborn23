@@ -355,9 +355,9 @@ async def send_logs(client: Client, m: Message):  # Correct parameter name
     except Exception as e:
         await m.reply_text(f"Error sending logs: {e}")
 
-@bot.on_message(filters.command(["drm"]) )
+@bot.on_message(filters.command(["drm"]))
 async def txt_handler(bot: Client, m: Message):
-    editable = await m.reply_text(f"**⚡𝗦𝖾𝗇𝖽 𝗧𝗑𝗍 𝗙𝗂𝗅𝖾⚡**")
+    editable = await m.reply_text(f"**⚡ Send Txt File ⚡**")
     input: Message = await bot.listen(editable.chat.id)
     y = await input.download()
     await input.delete(True)
@@ -399,79 +399,18 @@ async def txt_handler(bot: Client, m: Message):
         os.remove(x)
         return
     
-    await editable.edit(f"`🔹Total 🔗 links found are {len(links)}\n\n🔹Img : {img_count}  🔹PDF : {pdf_count}\n🔹ZIP : {zip_count}  🔹Other : {other_count}\n\n🔹Send From where you want to download.`")
+    await editable.edit(f"`🔹Total 🔗 links found are {len(links)}\n\n🔹Img : {img_count}  🔹PDF : {pdf_count}\n🔹ZIP : {zip_count}  🔹Other : {other_count}\n\n🔹Send batch number to start downloading.`")
     input0: Message = await bot.listen(editable.chat.id)
     raw_text = input0.text
     await input0.delete(True)
-           
-    await editable.edit("`🔹Enter Your Batch Name\n🔹Send 1 for use default.`")
-    input1: Message = await bot.listen(editable.chat.id)
-    raw_text0 = input1.text
-    await input1.delete(True)
-    if raw_text0 == '1':
-        b_name = file_name.replace('_', ' ')
-    else:
-        b_name = raw_text0
-
-    await editable.edit(
-        "╭─❥** 𝓜𝔂 𝓛𝓸𝓿𝓮, 𝓬𝓱𝓸𝓸𝓼𝓮 𝓽𝓱𝓮 𝓺𝓾𝓪𝓵𝓲𝓽𝔂 𝔂𝓸𝓾 𝔀𝓪𝓷𝓽 💖**\n"
-        "│\n"
-        "├💌 **Send `144`**   **for a soft, dreamy view 💫**\n"
-        "├💌 **Send `240`**   **for a gentle look into our world 🌸**\n"
-        "├💌 **Send `360`**   **to feel closer, even in pixels 🌷**\n"
-        "├💌 **Send `480`**   **for moments a bit clearer, like your smile ✨**\n"
-        "├💌 **Send `720`**   **for HD glimpses of love 💕**\n"
-        "├💌 **Send `1080`**  **to see it all, just like I see you — perfectly 💍**\n"
-        "│\n"
-        "╰─⌈ 💖 𝒜𝓁𝓌𝒶𝓎𝓈 𝒴ℴ𝓊𝓇𝓈, **king **🖤] ⌋"
-)
-
-    input2: Message = await bot.listen(editable.chat.id)
-    raw_text2 = input2.text
-    quality = f"{raw_text2}p"
-    await input2.delete(True)
-    try:
-        if raw_text2 == "144":
-            res = "256x144"
-        elif raw_text2 == "240":
-            res = "426x240"
-        elif raw_text2 == "360":
-            res = "640x360"
-        elif raw_text2 == "480":
-            res = "854x480"
-        elif raw_text2 == "720":
-            res = "1280x720"
-        elif raw_text2 == "1080":
-            res = "1920x1080" 
-        else: 
-            res = "UN"
-    except Exception:
-            res = "UN"
-
-    await editable.edit("`🔹Enter Your Name\n🔹Send 1 for use default`")
-    input3: Message = await bot.listen(editable.chat.id)
-    raw_text3 = input3.text
-    await input3.delete(True)
-    if raw_text3 == '1':
-        CR = '{MR}'
-    else:
-        CR = raw_text3
-
     
-
-    await editable.edit(f"🔹Send the Video Thumb URL\n🔹Send /d for use default\n\n🔹You can direct upload thumb\n🔹Send **No** for use default")
-    input6 = message = await bot.listen(editable.chat.id)
-    raw_text6 = input6.text
-    await input6.delete(True)
-
-    if input6.photo:
-        thumb = await input6.download()  # Use the photo sent by the user
-    elif raw_text6.startswith("http://") or raw_text6.startswith("https://"):
-        # If a URL is provided, download thumbnail from the URL
-        getstatusoutput(f"wget '{raw_text6}' -O 'thumb.jpg'")
-        thumb = "thumb.jpg"
-    else:
-        thumb = raw_text6
+    # Set default values
+    b_name = file_name.replace('_', ' ')  # Default batch name from file
+    quality = "720p"  # Default quality
+    res = "1280x720"  # Default resolution for 720p
+    CR = '{MR}'  # Default name
+    thumb = "thumb.jpg"  # Default thumbnail
+    
     await editable.delete()
     await m.reply_text(f"__**🎯Target Batch : {b_name}**__")
 
