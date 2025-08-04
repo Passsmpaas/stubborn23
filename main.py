@@ -70,24 +70,6 @@ photoyt = 'https://tinypic.host/images/2025/03/18/YouTube-Logo.wine.png' #https:
 photocp = 'https://tinypic.host/images/2025/03/28/IMG_20250328_133126.jpg'
 photozip = 'https://envs.sh/cD_.jpg'
 
-async def show_random_sticker(message):
-    stickers = [
-        "CAACAgUAAxkBAgtYgmhJulWpx_vDy1GIlR7G6OwctKcxAAI8EAACrMzBVx3chxfkiidyNgQ",
-        "CAACAgUAAxkBAgtYimhJunqI-FZhP7O-kI5bvbgFnBp9AAI5DgAC9Zq5VxHj-qYjt_uiNgQ",
-        "CAACAgUAAxkBAgtYmmhJur1nXNcMVudkC2fuXil4VpF3AAJ2CAAClK4oVCPT07wRGlstNgQ",
-        "CAACAgUAAxkBAgtYsGhJuu61JUQ0l_zLgLycyQqZ9sNWAAJrBwACyBgxVAbAdpK8418FNgQ",
-        "CAACAgUAAxkBAgtYxGhJuxzg8nTWlm9AlibQKY0hXIqoAAJyDgACpJ_BVyMa2ID2mvxsNgQ",
-        "CAACAgUAAxkBAgtXRWhJtq0ZiRrJ-Mp-Kftwv99yqTT3AAJoEAACflu4V8-evzGsFbJINgQ",
-        "CAACAgUAAxkBAgtYimhJunqI-FZhP7O-kI5bvbgFnBp9AAI5DgAC9Zq5VxHj-qYjt_uiNgQ",
-        "CAACAgUAAxkBAgteJGhJzy2dX3ZNxyiFTH5Kgc8ck7xTAAJVBgACps4xVHnQl8Vnupc9NgQ",
-        "CAACAgUAAxkBAgteMmhJz2ARUku-WEvY1cD8RNaqHvn2AAL5DwACsl7BV70t2N_61gPmNgQ",
-        "CAACAgUAAxkBAgtXR2hJtr3hUJuGEUVyh1ubpjmXqHE2AAIxDwACKQ_BV1TJl9nmPt9QNgQ",
-        "CAACAgUAAxkBAgteMmhJz2ARUku-WEvY1cD8RNaqHvn2AAL5DwACsl7BV70t2N_61gPmNgQ",
-    ]
-
-    selected_sticker = random.choice(stickers)
-    sticker_message = await message.reply_sticker(selected_sticker)
-    return sticker_message
 
 
 # Romantic Inline keyboard for start command
@@ -738,7 +720,6 @@ async def txt_handler(bot: Client, m: Message):
                 elif 'encrypted.m' in url:    
                     remaining_links = len(links) - count
                     progress = (count / len(links)) * 100
-                    sticker_message = await show_random_sticker(message)
                     Show = (
                         f"<b><i>🌸 Hey cutie, I'm working my magic just for you 💖</i></b>\n"
                         f"<b><i>╰━━━━━━━━━━━━━━━━━━━━━━━━╯</i></b>\n"
@@ -761,7 +742,7 @@ async def txt_handler(bot: Client, m: Message):
                     prog = await m.reply_text(Show, disable_web_page_preview=True)
                     res_file = await helper.download_and_decrypt_video(url, cmd, name, appxkey)  
                     filename = res_file  
-                    await sticker_message.delete()
+                    
                     await prog.delete(True)  
                     await helper.send_vid(bot, m, cc, filename, thumb, name, prog)  
                     count += 1  
@@ -771,7 +752,6 @@ async def txt_handler(bot: Client, m: Message):
                 elif 'drmcdni' in url or 'drm/wv' in url:
                     remaining_links = len(links) - count
                     progress = (count / len(links)) * 100
-                    sticker_message = await show_random_sticker(message)
                     Show = (
                         f"<b><i>🌸 Hey cutie, I'm working my magic just for you 💖</i></b>\n"
                         f"<b><i>╰━━━━━━━━━━━━━━━━━━━━━━━━╯</i></b>\n"
@@ -794,7 +774,7 @@ async def txt_handler(bot: Client, m: Message):
                     prog = await m.reply_text(Show, disable_web_page_preview=True)
                     res_file = await helper.decrypt_and_merge_video(mpd, keys_string, path, name, 720)
                     filename = res_file
-                    await sticker_message.delete()
+                    
                     await prog.delete(True)
                     await helper.send_vid(bot, m, cc, filename, thumb, name, prog)
                     count += 1
@@ -804,7 +784,7 @@ async def txt_handler(bot: Client, m: Message):
                 else:
                     remaining_links = len(links) - count
                     progress = (count / len(links)) * 100
-                    sticker_message = await show_random_sticker(message)
+                    
 
 
 
@@ -831,7 +811,7 @@ async def txt_handler(bot: Client, m: Message):
                     prog = await m.reply_text(Show, disable_web_page_preview=True)
                     res_file = await helper.download_video(url, cmd, name)
                     filename = res_file
-                    await sticker_message.delete()
+                    
                     await prog.delete(True)
                     await helper.send_vid(bot, m, cc, filename, thumb, name, prog)
                     count += 1
