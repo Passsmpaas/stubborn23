@@ -372,7 +372,7 @@ async def txt_handler(bot: Client, m: Message):
     quality = "720p"
     res = "1280x720"
     CR = '{MR}'
-    thumb = "thumb.jpg"
+    
 
     await editable.delete()
     await m.reply_text(f"__**🎯Target Batch : {b_name}**__")
@@ -652,7 +652,6 @@ async def txt_handler(bot: Client, m: Message):
                         chat_id=m.chat.id,
                         video=filename,
                         caption=cc,
-                        thumb=thumb,
                         supports_streaming=True
                     )
                     os.remove(filename)
@@ -690,7 +689,6 @@ async def txt_handler(bot: Client, m: Message):
                         chat_id=m.chat.id,
                         video=filename,
                         caption=cc,
-                        thumb=thumb,
                         supports_streaming=True
                     )
                     os.remove(filename)
@@ -728,7 +726,6 @@ async def txt_handler(bot: Client, m: Message):
                         chat_id=m.chat.id,
                         video=filename,
                         caption=cc,
-                        thumb=thumb,
                         supports_streaming=True
                     )
                     os.remove(filename)
