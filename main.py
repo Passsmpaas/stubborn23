@@ -42,7 +42,6 @@ import ffmpeg
 import jwt
 
 # Initialize the bot
-# Initialize the bot
 API_HASH = "0c9262b17a45cb67b447ffd8e38f1e4d"
 API_ID = "22274497"
 bot_token = os.getenv("BOT_TOKEN", "")  # Default to empty string if not set
@@ -112,25 +111,6 @@ image_urls = [
 ]
 
 # Update .env file with both TOKEN_CP and USER_ID
-env_file_path = '.env'
-env_content = ""
-if os.path.exists(env_file_path):
-    with open(env_file_path, 'r') as file:
-        env_content = file.read()
-token_regex = r'^TOKEN_CP=.*$'
-user_id_regex = r'^USER_ID=.*$'
-if re.search(token_regex, env_content, re.MULTILINE):
-    env_content = re.sub(token_regex, f'TOKEN_CP={new_token}', env_content, flags=re.MULTILINE)
-else:
-    env_content += f'\nTOKEN_CP={new_token}'
-if re.search(user_id_regex, env_content, re.MULTILINE):
-    env_content = re.sub(user_id_regex, f'USER_ID={user_id}', env_content, flags=re.MULTILINE)
-else:
-    env_content += f'\nUSER_ID={user_id}'
-with open(env_file_path, 'w') as file:
-    file.write(env_content)
-logging.info(f"TOKEN_CP and USER_ID updated to: {new_token[:50]}... and {user_id}")
-
 async def update_token_cp():
     global TOKEN_CP, user_id
     while True:
@@ -164,7 +144,7 @@ async def update_token_cp():
                             else:
                                 env_content += f'\nUSER_ID={user_id}'
                             with open(env_file_path, 'w') as file:
-                                file.write(env_content)
+                                file.write(env_content.strip())  # Remove trailing whitespace
                             logging.info(f"TOKEN_CP and USER_ID updated to: {new_token[:50]}... and {user_id}")
                             break
                         else:
