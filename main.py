@@ -136,19 +136,9 @@ async def update_token_cp():
             logging.error(f"Error updating TOKEN_CP: {str(e)}")
         await asyncio.sleep(15 * 60)  # Wait 15 minutes before next update
 
-# Start the token update task when the bot starts
-@bot.on_callback_query(filters.regex("start_token_update"))
-async def start_token_update_callback(client, callback_query):
-    try:
-        asyncio.create_task(update_token_cp())
-        await callback_query.answer("Token update task started successfully.")
-    except Exception as e:
-        logging.error(f"Error starting token update task: {str(e)}")
-        await callback_query.answer(f"Error starting token update task: {str(e)}")
-
-# Trigger the token update task after bot startup
-@bot.on_message(filters.command("start"))
-async def start_command(bot: Client, message: Message):
+# Start the token update task after bot startup
+@bot.on_message(filters.command(["startx"]))
+async def startx_command(bot: Client, message: Message):
     random_image_url = random.choice(image_urls)
     caption = (
         "**➦hᥱᥣᥣo bᥲbყ😉❤️**\n\n"
@@ -162,13 +152,15 @@ async def start_command(bot: Client, message: Message):
         caption=caption,
         reply_markup=keyboard
     )
-    # Start the token update task
-    try:
-        asyncio.create_task(update_token_cp())
-        logging.info("Token update task started on bot startup")
-    except Exception as e:
-        logging.error(f"Error starting token update task on startup: {str(e)}")
-        
+    # Start the token update task only once
+    if not hasattr(bot, "token_update_started"):
+        try:
+            bot.loop.create_task(update_token_cp())
+            logging.info("Token update task started on bot startup")
+            bot.token_update_started = True  # Flag to prevent multiple tasks
+        except Exception as e:
+            logging.error(f"Error starting token update task on startup: {str(e)}")
+
 @bot.on_message(filters.command("cookies") & filters.private)
 async def cookies_handler(client: Client, m: Message):
     await m.reply_text(
