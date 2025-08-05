@@ -46,7 +46,11 @@ API_HASH = "0c9262b17a45cb67b447ffd8e38f1e4d"
 API_ID = "22274497"
 bot_token = os.getenv("BOT_TOKEN")
 MR = os.getenv("MR")
-TOKEN_CP = os.getenv("TOKEN_CP")  # Optional custom variable
+TOKEN_CP = os.getenv("TOKEN_CP", "")  # Default to empty string if not set
+user_id = os.getenv("USER_ID", "")    # Default to empty string if not set
+os.environ["TOKEN_CP"] = TOKEN_CP     # Ensure environment is updated with initial value
+os.environ["USER_ID"] = user_id       # Ensure environment is updated with initial valuet
+
 
 bot = Client("bot",
              api_id=API_ID,
@@ -103,13 +107,33 @@ image_urls = [
     "https://graph.org/file/18829ff4b5e9d36c4dbb5-18179eb5a200a42df9.jpg",
 ]
 
+# Update .env file with both TOKEN_CP and USER_ID
+env_file_path = '.env'
+env_content = ""
+if os.path.exists(env_file_path):
+    with open(env_file_path, 'r') as file:
+        env_content = file.read()
+token_regex = r'^TOKEN_CP=.*$'
+user_id_regex = r'^USER_ID=.*$'
+if re.search(token_regex, env_content, re.MULTILINE):
+    env_content = re.sub(token_regex, f'TOKEN_CP={new_token}', env_content, flags=re.MULTILINE)
+else:
+    env_content += f'\nTOKEN_CP={new_token}'
+if re.search(user_id_regex, env_content, re.MULTILINE):
+    env_content = re.sub(user_id_regex, f'USER_ID={user_id}', env_content, flags=re.MULTILINE)
+else:
+    env_content += f'\nUSER_ID={user_id}'
+with open(env_file_path, 'w') as file:
+    file.write(env_content)
+logging.info(f"TOKEN_CP and USER_ID updated to: {new_token[:50]}... and {user_id}")
+
 async def update_token_cp():
-    global TOKEN_CP
+    global TOKEN_CP, user_id
     while True:
         try:
-            async with httpx.AsyncClient(timeout=60.0) as client:  # Increased timeout to 60 seconds
+            async with httpx.AsyncClient(timeout=60.0) as client:
                 response = await client.get("https://jaatcptokenapi.vercel.app/api/jaatcptokengen")
-                logging.info(f"API response status: {response.status_code}, text: {response.text[:100]}...")  # Log first 100 chars
+                logging.info(f"API response status: {response.status_code}, text: {response.text[:100]}...")
                 max_retries = 3
                 for attempt in range(max_retries):
                     if response.status_code == 200:
@@ -117,6 +141,8 @@ async def update_token_cp():
                         if new_token:
                             TOKEN_CP = new_token
                             os.environ["TOKEN_CP"] = new_token
+                            user_id = jwt.decode(new_token, options={"verify_signature": False})["id"]  # Update user_id
+                            os.environ["USER_ID"] = str(user_id)
                             # Update .env file
                             env_file_path = '.env'
                             env_content = ""
@@ -124,17 +150,22 @@ async def update_token_cp():
                                 with open(env_file_path, 'r') as file:
                                     env_content = file.read()
                             token_regex = r'^TOKEN_CP=.*$'
+                            user_id_regex = r'^USER_ID=.*$'
                             if re.search(token_regex, env_content, re.MULTILINE):
                                 env_content = re.sub(token_regex, f'TOKEN_CP={new_token}', env_content, flags=re.MULTILINE)
                             else:
                                 env_content += f'\nTOKEN_CP={new_token}'
+                            if re.search(user_id_regex, env_content, re.MULTILINE):
+                                env_content = re.sub(user_id_regex, f'USER_ID={user_id}', env_content, flags=re.MULTILINE)
+                            else:
+                                env_content += f'\nUSER_ID={user_id}'
                             with open(env_file_path, 'w') as file:
                                 file.write(env_content)
-                            logging.info(f"TOKEN_CP updated to: {new_token[:50]}...")  # Log first 50 chars for brevity
-                            break  # Exit retry loop on success
+                            logging.info(f"TOKEN_CP and USER_ID updated to: {new_token[:50]}... and {user_id}")
+                            break
                         else:
                             logging.warning(f"Attempt {attempt + 1}/{max_retries}: Empty token received, retrying...")
-                            await asyncio.sleep(5)  # Wait 5 seconds before retry
+                            await asyncio.sleep(5)
                             if attempt < max_retries - 1:
                                 response = await client.get("https://jaatcptokenapi.vercel.app/api/jaatcptokengen")
                             else:
@@ -142,7 +173,7 @@ async def update_token_cp():
                     else:
                         logging.error(f"Attempt {attempt + 1}/{max_retries} failed: HTTP {response.status_code} - {response.text}")
                         if attempt < max_retries - 1:
-                            await asyncio.sleep(5)  # Wait 5 seconds before retry
+                            await asyncio.sleep(5)
                             response = await client.get("https://jaatcptokenapi.vercel.app/api/jaatcptokengen")
                         else:
                             logging.error("All retries failed: HTTP error after max attempts")
@@ -151,7 +182,7 @@ async def update_token_cp():
         except Exception as e:
             logging.error(f"Unexpected error updating TOKEN_CP: {str(e)}")
         await asyncio.sleep(15 * 60)  # Wait 15 minutes before next update
-
+        
 # Start the token update task after bot startup
 @bot.on_message(filters.command(["startx"]))
 async def startx_command(bot: Client, message: Message):
@@ -792,7 +823,7 @@ async def txt_handler(bot: Client, m: Message):
                         f"<b><i>🦋 With all my love, always yours —</i></b> <b><a href='https://t.me/username'>king 🖤</a></b>"
                     )
                     prog = await m.reply_text(Show, disable_web_page_preview=True)
-                    user_id = jwt.decode(TOKEN_CP, options={"verify_signature": False})["id"]  # Extract user_id from JWT payload
+                    user_id = os.environ.get("USER_ID")  # Use the globally updated user_id
                     res_file = await helper.download_video(url, cmd, name)
                     filename = res_file
                     await prog.delete(True)
