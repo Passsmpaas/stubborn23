@@ -42,6 +42,7 @@ import ffmpeg
 import jwt
 
 # Initialize the bot
+# Initialize the bot
 API_HASH = "0c9262b17a45cb67b447ffd8e38f1e4d"
 API_ID = "22274497"
 bot_token = os.getenv("BOT_TOKEN", "")  # Default to empty string if not set
