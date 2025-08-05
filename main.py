@@ -42,7 +42,6 @@ import ffmpeg
 import jwt
 
 # Initialize the bot
-# Initialize the bot
 API_HASH = "0c9262b17a45cb67b447ffd8e38f1e4d"
 API_ID = "22274497"
 bot_token = os.getenv("BOT_TOKEN", "")  # Default to empty string if not set
@@ -54,8 +53,7 @@ os.environ["USER_ID"] = user_id         # Ensure environment is updated with ini
 
 if not bot_token:
     logging.error("BOT_TOKEN not found in environment. Please set it in .env or environment variables.")
-    sys.exit(1)      # Ensure environment is updated with initial valuet
-
+    sys.exit(1)
 
 bot = Client("bot",
              api_id=API_ID,
