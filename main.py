@@ -106,32 +106,45 @@ async def update_token_cp():
     global TOKEN_CP
     while True:
         try:
-            async with httpx.AsyncClient(timeout=10.0) as client:
+            async with httpx.AsyncClient(timeout=60.0) as client:  # Increased timeout to 60 seconds
                 response = await client.get("https://jaatcptokenapi.vercel.app/api/jaatcptokengen")
                 logging.info(f"API response status: {response.status_code}, text: {response.text[:100]}...")  # Log first 100 chars
-                if response.status_code == 200:
-                    new_token = response.text.strip()  # Use the raw JWT response directly
-                    if new_token:
-                        TOKEN_CP = new_token
-                        os.environ["TOKEN_CP"] = new_token
-                        # Update .env file
-                        env_file_path = '.env'
-                        env_content = ""
-                        if os.path.exists(env_file_path):
-                            with open(env_file_path, 'r') as file:
-                                env_content = file.read()
-                        token_regex = r'^TOKEN_CP=.*$'
-                        if re.search(token_regex, env_content, re.MULTILINE):
-                            env_content = re.sub(token_regex, f'TOKEN_CP={new_token}', env_content, flags=re.MULTILINE)
+                max_retries = 3
+                for attempt in range(max_retries):
+                    if response.status_code == 200:
+                        new_token = response.text.strip()
+                        if new_token:
+                            TOKEN_CP = new_token
+                            os.environ["TOKEN_CP"] = new_token
+                            # Update .env file
+                            env_file_path = '.env'
+                            env_content = ""
+                            if os.path.exists(env_file_path):
+                                with open(env_file_path, 'r') as file:
+                                    env_content = file.read()
+                            token_regex = r'^TOKEN_CP=.*$'
+                            if re.search(token_regex, env_content, re.MULTILINE):
+                                env_content = re.sub(token_regex, f'TOKEN_CP={new_token}', env_content, flags=re.MULTILINE)
+                            else:
+                                env_content += f'\nTOKEN_CP={new_token}'
+                            with open(env_file_path, 'w') as file:
+                                file.write(env_content)
+                            logging.info(f"TOKEN_CP updated to: {new_token[:50]}...")  # Log first 50 chars for brevity
+                            break  # Exit retry loop on success
                         else:
-                            env_content += f'\nTOKEN_CP={new_token}'
-                        with open(env_file_path, 'w') as file:
-                            file.write(env_content)
-                        logging.info(f"TOKEN_CP updated to: {new_token[:50]}...")  # Log first 50 chars for brevity
+                            logging.warning(f"Attempt {attempt + 1}/{max_retries}: Empty token received, retrying...")
+                            await asyncio.sleep(5)  # Wait 5 seconds before retry
+                            if attempt < max_retries - 1:
+                                response = await client.get("https://jaatcptokenapi.vercel.app/api/jaatcptokengen")
+                            else:
+                                logging.error("All retries failed: Empty token after max attempts")
                     else:
-                        logging.error("Empty token received from API")
-                else:
-                    logging.error(f"Failed to fetch token: HTTP {response.status_code} - {response.text}")
+                        logging.error(f"Attempt {attempt + 1}/{max_retries} failed: HTTP {response.status_code} - {response.text}")
+                        if attempt < max_retries - 1:
+                            await asyncio.sleep(5)  # Wait 5 seconds before retry
+                            response = await client.get("https://jaatcptokenapi.vercel.app/api/jaatcptokengen")
+                        else:
+                            logging.error("All retries failed: HTTP error after max attempts")
         except httpx.RequestError as e:
             logging.error(f"Network error fetching token: {str(e)}")
         except Exception as e:
