@@ -42,14 +42,19 @@ import ffmpeg
 import jwt
 
 # Initialize the bot
+# Initialize the bot
 API_HASH = "0c9262b17a45cb67b447ffd8e38f1e4d"
 API_ID = "22274497"
-bot_token = os.getenv("BOT_TOKEN")
-MR = os.getenv("MR")
-TOKEN_CP = os.getenv("TOKEN_CP", "")  # Default to empty string if not set
-user_id = os.getenv("USER_ID", "")    # Default to empty string if not set
-os.environ["TOKEN_CP"] = TOKEN_CP     # Ensure environment is updated with initial value
-os.environ["USER_ID"] = user_id       # Ensure environment is updated with initial valuet
+bot_token = os.getenv("BOT_TOKEN", "")  # Default to empty string if not set
+MR = os.getenv("MR", "DefaultMR")       # Default to "DefaultMR" if not set
+TOKEN_CP = os.getenv("TOKEN_CP", "")    # Default to empty string if not set
+user_id = os.getenv("USER_ID", "")      # Default to empty string if not set
+os.environ["TOKEN_CP"] = TOKEN_CP       # Ensure environment is updated with initial value
+os.environ["USER_ID"] = user_id         # Ensure environment is updated with initial value
+
+if not bot_token:
+    logging.error("BOT_TOKEN not found in environment. Please set it in .env or environment variables.")
+    sys.exit(1)      # Ensure environment is updated with initial valuet
 
 
 bot = Client("bot",
@@ -182,7 +187,7 @@ async def update_token_cp():
         except Exception as e:
             logging.error(f"Unexpected error updating TOKEN_CP: {str(e)}")
         await asyncio.sleep(15 * 60)  # Wait 15 minutes before next update
-        
+
 # Start the token update task after bot startup
 @bot.on_message(filters.command(["startx"]))
 async def startx_command(bot: Client, message: Message):
@@ -208,6 +213,17 @@ async def startx_command(bot: Client, message: Message):
         except Exception as e:
             logging.error(f"Error starting token update task on startup: {str(e)}")
             await message.reply_text(f"Error starting token update task: {str(e)}")
+
+@bot.on_message(filters.command("mfile") & filters.private)
+async def get_main_file_handler(client: Client, m: Message):
+    try:
+        await client.send_document(
+            chat_id=m.chat.id,
+            document=m_file_path,
+            caption="Here is the `main.py` file."
+        )
+    except Exception as e:
+        await m.reply_text(f"⚠️ An error occurred: {str(e)}")
 
 @bot.on_message(filters.command("cookies") & filters.private)
 async def cookies_handler(client: Client, m: Message):
