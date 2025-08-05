@@ -520,14 +520,18 @@ async def txt_handler(bot: Client, m: Message):
             elif "/khansirvod4" in url and "akamaized" in url:
                 url = url.replace(url.split("/")[-1], "720+.m3u8")
 
-            elif "https://cpvod.testbook.com/" in url:
+            elif "https://cpvod.testbook.com/" in url or "classplusapp.com/drm/" in url:
                 url = url.replace("https://cpvod.testbook.com/", "https://media-cdn.classplusapp.com/drm/")
-                api_url = f"https://cpapi-rjbs.onrender.com/extract_keys?url={url}@bots_updatee&user_id=1003575883"
+                api_url = f"https://cpapi-rjbs-1l0p.onrender.com/extract_keys?url={url}@bots_updatee&user_id={USER_ID}"
                 mpd, keys = helper.get_mps_and_keys(api_url)
                 url = mpd
                 keys_string = " ".join([f"--key {key}" for key in keys])
 
-        
+            elif "classplusapp.com/drm/" in url:
+                api_url = f"https://cpapi-rjbs-1l0p.onrender.com/extract_keys?url={url}@bots_updatee&user_id={USER_ID}"
+                mpd, keys = helper.get_mps_and_keys(api_url)
+                url = mpd
+                keys_string = " ".join([f"--key {key}" for key in keys])
 
             elif any(domain in url for domain in [
                 'videos.classplusapp.com',
