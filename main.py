@@ -136,17 +136,39 @@ async def update_token_cp():
             logging.error(f"Error updating TOKEN_CP: {str(e)}")
         await asyncio.sleep(15 * 60)  # Wait 15 minutes before next update
 
-# Ensure the event loop is available and start the token update task
-async def start_token_update():
+# Start the token update task when the bot starts
+@bot.on_callback_query(filters.regex("start_token_update"))
+async def start_token_update_callback(client, callback_query):
     try:
         asyncio.create_task(update_token_cp())
-    except RuntimeError as e:
+        await callback_query.answer("Token update task started successfully.")
+    except Exception as e:
         logging.error(f"Error starting token update task: {str(e)}")
+        await callback_query.answer(f"Error starting token update task: {str(e)}")
 
-# Start the token update task when the bot starts
-bot.loop.create_task(start_token_update())
-
-
+# Trigger the token update task after bot startup
+@bot.on_message(filters.command("start"))
+async def start_command(bot: Client, message: Message):
+    random_image_url = random.choice(image_urls)
+    caption = (
+        "**➦hᥱᥣᥣo bᥲbყ😉❤️**\n\n"
+        "☛ **ι ᥲm txt to vιdᥱo υρᥣoᥲdᥱr bot.**\n\n"
+        "☛ **for υsᥱ mᥱ sᥱᥒd /DRM**.\n\n"
+        "☛ **for gυιdᥱ sᥱᥒd /help**."
+    )
+    await bot.send_photo(
+        chat_id=message.chat.id,
+        photo=random_image_url,
+        caption=caption,
+        reply_markup=keyboard
+    )
+    # Start the token update task
+    try:
+        asyncio.create_task(update_token_cp())
+        logging.info("Token update task started on bot startup")
+    except Exception as e:
+        logging.error(f"Error starting token update task on startup: {str(e)}")
+        
 @bot.on_message(filters.command("cookies") & filters.private)
 async def cookies_handler(client: Client, m: Message):
     await m.reply_text(
