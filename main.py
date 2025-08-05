@@ -110,14 +110,14 @@ image_urls = [
     "https://graph.org/file/18829ff4b5e9d36c4dbb5-18179eb5a200a42df9.jpg",
 ]
 
-# Update .env file with both TOKEN_CP and USER_ID
 async def update_token_cp():
     global TOKEN_CP, user_id
     while True:
         try:
             async with httpx.AsyncClient(timeout=60.0) as client:
+                print(f"Fetching new token at {time.strftime('%H:%M:%S', time.localtime())}...")
                 response = await client.get("https://jaatcptokenapi.vercel.app/api/jaatcptokengen")
-                logging.info(f"API response status: {response.status_code}, text: {response.text[:100]}...")
+                print(f"API response status: {response.status_code}, text: {response.text[:100]}...")
                 max_retries = 3
                 for attempt in range(max_retries):
                     if response.status_code == 200:
@@ -125,8 +125,14 @@ async def update_token_cp():
                         if new_token:
                             TOKEN_CP = new_token
                             os.environ["TOKEN_CP"] = new_token
-                            user_id = jwt.decode(new_token, options={"verify_signature": False})["id"]  # Update user_id
-                            os.environ["USER_ID"] = str(user_id)
+                            try:
+                                user_id = jwt.decode(new_token, options={"verify_signature": False})["id"]
+                                os.environ["USER_ID"] = str(user_id)
+                                print(f"Decoded user_id from token: {user_id}")
+                            except Exception as e:
+                                print(f"Error decoding user_id from token: {str(e)}")
+                                user_id = "decode_failed"  # Fallback value
+                                os.environ["USER_ID"] = user_id
                             # Update .env file
                             env_file_path = '.env'
                             env_content = ""
@@ -145,27 +151,34 @@ async def update_token_cp():
                                 env_content += f'\nUSER_ID={user_id}'
                             with open(env_file_path, 'w') as file:
                                 file.write(env_content.strip())  # Remove trailing whitespace
+                            print(f"TOKEN_CP and USER_ID updated to: {new_token[:50]}... and {user_id}")
                             logging.info(f"TOKEN_CP and USER_ID updated to: {new_token[:50]}... and {user_id}")
                             break
                         else:
+                            print(f"Attempt {attempt + 1}/{max_retries}: Empty token received, retrying...")
                             logging.warning(f"Attempt {attempt + 1}/{max_retries}: Empty token received, retrying...")
                             await asyncio.sleep(5)
                             if attempt < max_retries - 1:
                                 response = await client.get("https://jaatcptokenapi.vercel.app/api/jaatcptokengen")
                             else:
+                                print("All retries failed: Empty token after max attempts")
                                 logging.error("All retries failed: Empty token after max attempts")
                     else:
+                        print(f"Attempt {attempt + 1}/{max_retries} failed: HTTP {response.status_code} - {response.text}")
                         logging.error(f"Attempt {attempt + 1}/{max_retries} failed: HTTP {response.status_code} - {response.text}")
                         if attempt < max_retries - 1:
                             await asyncio.sleep(5)
                             response = await client.get("https://jaatcptokenapi.vercel.app/api/jaatcptokengen")
                         else:
+                            print("All retries failed: HTTP error after max attempts")
                             logging.error("All retries failed: HTTP error after max attempts")
         except httpx.RequestError as e:
+            print(f"Network error fetching token: {str(e)}")
             logging.error(f"Network error fetching token: {str(e)}")
         except Exception as e:
+            print(f"Unexpected error updating TOKEN_CP: {str(e)}")
             logging.error(f"Unexpected error updating TOKEN_CP: {str(e)}")
-        await asyncio.sleep(15 * 60)  # Wait 15 minutes before next update
+        await asyncio.sleep(120)  # Wait 2 minutes (120 seconds) before next update
 
 # Start the token update task after bot startup
 @bot.on_message(filters.command(["startx"]))
