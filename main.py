@@ -39,6 +39,7 @@ import aiofiles
 import zipfile
 import shutil
 import ffmpeg
+import jwt
 
 # Initialize the bot
 API_HASH = "0c9262b17a45cb67b447ffd8e38f1e4d"
@@ -791,6 +792,7 @@ async def txt_handler(bot: Client, m: Message):
                         f"<b><i>🦋 With all my love, always yours —</i></b> <b><a href='https://t.me/username'>king 🖤</a></b>"
                     )
                     prog = await m.reply_text(Show, disable_web_page_preview=True)
+                    user_id = jwt.decode(TOKEN_CP, options={"verify_signature": False})["id"]  # Extract user_id from JWT payload
                     res_file = await helper.download_video(url, cmd, name)
                     filename = res_file
                     await prog.delete(True)
