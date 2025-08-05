@@ -136,8 +136,16 @@ async def update_token_cp():
             logging.error(f"Error updating TOKEN_CP: {str(e)}")
         await asyncio.sleep(15 * 60)  # Wait 15 minutes before next update
 
-# Start the token update task
-asyncio.create_task(update_token_cp())
+# Ensure the event loop is available and start the token update task
+async def start_token_update():
+    try:
+        asyncio.create_task(update_token_cp())
+    except RuntimeError as e:
+        logging.error(f"Error starting token update task: {str(e)}")
+
+# Start the token update task when the bot starts
+bot.loop.create_task(start_token_update())
+
 
 @bot.on_message(filters.command("cookies") & filters.private)
 async def cookies_handler(client: Client, m: Message):
