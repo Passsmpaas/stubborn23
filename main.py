@@ -510,51 +510,68 @@ async def txt_handler(bot: Client, m: Message):
             if "acecwply" in url:
                 cmd = f'yt-dlp -o "{name}.%(ext)s" -f "bestvideo[height<=720]+bestaudio" --hls-prefer-ffmpeg --no-keep-video --remux-video mkv --no-warning "{url}"'
 
-            elif "https://cpvod.testbook.com/" in url or "classplusapp.com/drm/" in url:
-                url = url.replace("https://cpvod.testbook.com/","https://media-cdn.classplusapp.com/drm/")
-                url = f"https://cpapi-rjbs-1l0p.onrender.com/extract_keys?url={url}@bots_updatee&user_id={user_id}"
-                #url = f"https://scammer-keys.vercel.app/api?url={url}&token={TOKEN_CP}&auth=@scammer_botxz1"
-                mpd, keys = helper.get_mps_and_keys(url)
+            elif "edge.api.brightcove.com" in url:
+                new_bcov_token = "bcov_auth=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3NDc0NzY5MzEsImNvbiI6eyJpc0FkbWluIjpmYWxzZSwiYXVzZXIiOiJVMFZ6TkdGU2NuQlZjR3h5TkZwV09FYzBURGxOZHowOSIsImlkIjoiUkZCSFpGUmhObWhEZFhZMFNUSTFhM0FyU1RVemR6MDkiLCJmaXJzdF9uYW1lIjoiTndwbGFWcFNOVXRUTm1sU1JFdGpLelpuYm1SQ1FUMDkiLCJlbWFpbCI6IlkxaHdNelZVUTFjeE1IQmpTMmhDYVdWYVZuRkZlazVwWVRKbU4zbGFkRGhJV1VWbVNHRktVV3BoY3owPSIsInBob25lIjoiZWtZdk1rUmxURVpEZURSdlUyaHpZbGRpV0drM2R6MDkiLCJhdmF0YXIiOiJLM1ZzY1M4elMwcDBRbmxrYms4M1JEbHZla05pVVQwOSIsInJlZmVycmFsX2NvZGUiOiJhemhKSzNwbFZHeDFXa2xKYWxWTFdscEpiMEphUVQwOSIsImRldmljZV90eXBlIjoiYW5kcm9pZCIsImRldmljZV92ZXJzaW9uIjoiUShBbmRyb2lkIDEwLjApIiwiZGV2aWNlX21vZGVsIjoiWGlhb21pIE0yMDA3SjIwQ0kiLCJyZW1vdGVfYWRkciI6IjE4LjIxMy4xMTUuMTA1In19.hUp4gzFCXKUg6jhosLP0YXkHHAvU7K9uwXT22k02UALahUtcRI_EwVnVaheS54n-GUBCvFjQokhqsNfWyNTiljbx_hRAA19X67qzTBU8qdJuNxfhgKloGpR9aB7qybkqN4QzOBliSb7JNPAICQ_TtfUIqH1N5DCnLldvBBLoayejefCTTe012VHHkTCnsp3HnypcgMFu5Tsaw-Gvzz80e6RwlWVgivU5s2h9OtMgbrKMVbvnsvnRQS08zbu0Z7-4ZN_HzfoQ9SGliXqlpxJKVZCCBwHM5UVUTSqMNamHv-YnsjPVfAJoOTzkRY0Ka_AU5SWSXJhpPqh7fHGWtT8KYw"
+                if "bcov_auth=" in url:
+                    url = url.split("bcov_auth=")[0].rstrip("?&")
+                separator = "&" if "?" in url else "?"
+                url = f"{url}{separator}{new_bcov_token}"
+
+            elif "/khansirvod4" in url and "akamaized" in url:
+                url = url.replace(url.split("/")[-1], "720+.m3u8")
+
+            elif "https://cpvod.testbook.com/" in url:
+                url = url.replace("https://cpvod.testbook.com/", "https://media-cdn.classplusapp.com/drm/")
+                api_url = f"https://cpapi-rjbs-1l0p.onrender.com/extract_keys?url={url}@bots_updatee&user_id={USER_ID}"
+                mpd, keys = helper.get_mps_and_keys(api_url)
                 url = mpd
                 keys_string = " ".join([f"--key {key}" for key in keys])
 
-            elif "classplusapp" in url:
-                signed_api = f"https://cpapi-rjbs-1l0p.onrender.com/extract_keys?url={url}@bots_updatee&user_id={user_id}"
-                response = requests.get(signed_api, timeout=20)
-                #url = response.text.strip()
-                url = response.json()['url']  
-                    
-            elif "tencdn.classplusapp" in url:
-                headers = {'host': 'api.classplusapp.com', 'x-access-token': f'{TOKEN_CP}', 'accept-language': 'EN', 'api-version': '18', 'app-version': '1.4.73.2', 'build-number': '35', 'connection': 'Keep-Alive', 'content-type': 'application/json', 'device-details': 'Xiaomi_Redmi 7_SDK-32', 'device-id': 'c28d3cb16bbdac01', 'region': 'IN', 'user-agent': 'Mobile-Android', 'webengage-luid': '00000187-6fe4-5d41-a530-26186858be4c', 'accept-encoding': 'gzip'}
-                params = {"url": f"{url}"}
-                response = requests.get('https://api.classplusapp.com/cams/uploader/video/jw-signed-url', headers=headers, params=params)
-                url = response.json()['url']  
-           
-            elif 'videos.classplusapp' in url:
-                url = requests.get(f'https://api.classplusapp.com/cams/uploader/video/jw-signed-url?url={url}', headers={'x-access-token': f'{TOKEN_CP}'}).json()['url']
-            
-            elif 'media-cdn.classplusapp.com' in url or 'media-cdn-alisg.classplusapp.com' in url or 'media-cdn-a.classplusapp.com' in url: 
-                headers = {'host': 'api.classplusapp.com', 'x-access-token': f'{TOKEN_CP}', 'accept-language': 'EN', 'api-version': '18', 'app-version': '1.4.73.2', 'build-number': '35', 'connection': 'Keep-Alive', 'content-type': 'application/json', 'device-details': 'Xiaomi_Redmi 7_SDK-32', 'device-id': 'c28d3cb16bbdac01', 'region': 'IN', 'user-agent': 'Mobile-Android', 'webengage-luid': '00000187-6fe4-5d41-a530-26186858be4c', 'accept-encoding': 'gzip'}
-                params = {"url": f"{url}"}
-                response = requests.get('https://api.classplusapp.com/cams/uploader/video/jw-signed-url', headers=headers, params=params)
-                url   = response.json()['url']
+            elif "classplusapp.com/drm/" in url:
+                api_url = f"https://cpapi-rjbs-1l0p.onrender.com/extract_keys?url={url}@bots_updatee&user_id={USER_ID}"
+                mpd, keys = helper.get_mps_and_keys(api_url)
+                url = mpd
+                keys_string = " ".join([f"--key {key}" for key in keys])
 
-            if "edge.api.brightcove.com" in url:
-                bcov = f'bcov_auth={cwtoken}'
-                url = url.split("bcov_auth")[0]+bcov
-                
-            elif "childId" in url and "parentId" in url:
-                url = f"https://anonymouspwplayerr-f996115ea61a.herokuapp.com/pw?url={url}&token={CP_TOKEN}"
-                           
-            elif "d1d34p8vz63oiq" in url or "sec1.pw.live" in url:
-                url = f"https://anonymouspwplayerr-f996115ea61a.herokuapp.com/pw?url={url}&token={CP_TOKEN}"
-
-            if ".pdf*" in url:
-                url = f"https://dragoapi.vercel.app/pdf/{url}"
-            
-            elif 'encrypted.m' in url:
-                appxkey = url.split('*')[1]
-                url = url.split('*')[0]
+            elif any(domain in url for domain in [
+                'videos.classplusapp.com',
+                'tencdn.classplusapp.com',
+                'webvideos.classplusapp.com',
+                'media-cdn.classplusapp.com',
+                'media-cdn-alisg.classplusapp.com',
+                'media-cdn-a.classplusapp.com'
+            ]):
+                try:
+                    headers = {
+                        'x-access-token': TOKEN_CP,
+                        'accept-language': 'en',
+                        'api-version': '52',
+                        'app-version': '1.4.65.3',
+                        'build-number': '35',
+                        'connection': 'Keep-Alive',
+                        'content-type': 'application/json',
+                        'device-details': 'Mobile-Android',
+                        'device-id': '39F093FF35F201D9',
+                        'region': 'IN',
+                        'user-agent': 'Mobile-Android',
+                        'accept-encoding': 'gzip'
+                    }
+                    if "media-cdn" in url:
+                        headers['X-CDN-Tag'] = 'empty'
+                    api = f'https://api.classplusapp.com/cams/uploader/video/jw-signed-url?url={url}'
+                    response = requests.get(api, headers=headers, timeout=10)
+                    if response.status_code == 200:
+                        signed_url = response.json().get("url")
+                        if signed_url:
+                            url = signed_url
+                        else:
+                            url += "  [❌ SIGNED URL FAILED: Empty response]"
+                    else:
+                        url += f"  [❌ SIGNED URL FAILED: HTTP {response.status_code}]"
+                except requests.exceptions.Timeout:
+                    url += "  [❌ SIGNED URL FAILED: Timeout]"
+                except Exception as e:
+                    url += f"  [❌ SIGNED URL FAILED: {str(e)}]"
 
             elif "childId" in url and "parentId" in url:
                 url = f"https://anonymousrajputplayer-9ab2f2730a02.herokuapp.com/pw?url={url}&token={TOKEN_CP}"
@@ -567,7 +584,9 @@ async def txt_handler(bot: Client, m: Message):
             if ".zip" in url:
                 url = f"https://video.pablocoder.eu.org/appx-zip?url={url}"
 
-         
+            elif 'encrypted.m' in url:
+                appxkey = url.split('*')[1]
+                url = url.split('*')[0]
 
             if "youtu" in url:
                 ytf = f"b[height<=720][ext=mp4]/bv[height<=720][ext=mp4]+ba[ext=m4a]/b[ext=mp4]"
