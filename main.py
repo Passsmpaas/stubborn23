@@ -106,34 +106,40 @@ async def update_token_cp():
     global TOKEN_CP
     while True:
         try:
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=10.0) as client:
                 response = await client.get("https://jaatcptokenapi.vercel.app/api/jaatcptokengen")
+                logging.info(f"API response status: {response.status_code}")
                 if response.status_code == 200:
-                    data = response.json()
-                    new_token = data.get("token")  # Adjust based on API response structure
-                    if new_token:
-                        TOKEN_CP = new_token
-                        os.environ["TOKEN_CP"] = new_token
-                        # Update .env file
-                        env_file_path = '.env'
-                        env_content = ""
-                        if os.path.exists(env_file_path):
-                            with open(env_file_path, 'r') as file:
-                                env_content = file.read()
-                        token_regex = r'^TOKEN_CP=.*$'
-                        if re.search(token_regex, env_content, re.MULTILINE):
-                            env_content = re.sub(token_regex, f'TOKEN_CP={new_token}', env_content, flags=re.MULTILINE)
+                    try:
+                        data = response.json()
+                        new_token = data.get("token")  # Adjust based on API response structure
+                        if new_token:
+                            TOKEN_CP = new_token
+                            os.environ["TOKEN_CP"] = new_token
+                            # Update .env file
+                            env_file_path = '.env'
+                            env_content = ""
+                            if os.path.exists(env_file_path):
+                                with open(env_file_path, 'r') as file:
+                                    env_content = file.read()
+                            token_regex = r'^TOKEN_CP=.*$'
+                            if re.search(token_regex, env_content, re.MULTILINE):
+                                env_content = re.sub(token_regex, f'TOKEN_CP={new_token}', env_content, flags=re.MULTILINE)
+                            else:
+                                env_content += f'\nTOKEN_CP={new_token}'
+                            with open(env_file_path, 'w') as file:
+                                file.write(env_content)
+                            logging.info(f"TOKEN_CP updated to: {new_token}")
                         else:
-                            env_content += f'\nTOKEN_CP={new_token}'
-                        with open(env_file_path, 'w') as file:
-                            file.write(env_content)
-                        logging.info(f"TOKEN_CP updated to: {new_token}")
-                    else:
-                        logging.error("No token found in API response")
+                            logging.error("No token found in API response: " + str(data))
+                    except ValueError as e:
+                        logging.error(f"Failed to parse API response as JSON: {str(e)}")
                 else:
-                    logging.error(f"Failed to fetch token: HTTP {response.status_code}")
+                    logging.error(f"Failed to fetch token: HTTP {response.status_code} - {response.text}")
+        except httpx.RequestError as e:
+            logging.error(f"Network error fetching token: {str(e)}")
         except Exception as e:
-            logging.error(f"Error updating TOKEN_CP: {str(e)}")
+            logging.error(f"Unexpected error updating TOKEN_CP: {str(e)}")
         await asyncio.sleep(15 * 60)  # Wait 15 minutes before next update
 
 # Start the token update task after bot startup
@@ -160,6 +166,7 @@ async def startx_command(bot: Client, message: Message):
             bot.token_update_started = True  # Flag to prevent multiple tasks
         except Exception as e:
             logging.error(f"Error starting token update task on startup: {str(e)}")
+            await message.reply_text(f"Error starting token update task: {str(e)}")
 
 @bot.on_message(filters.command("cookies") & filters.private)
 async def cookies_handler(client: Client, m: Message):
@@ -810,3 +817,4 @@ async def txt_handler(bot: Client, m: Message):
     await m.reply_text("**Sᴜᴄᴄᴇsғᴜʟʟʏ Dᴏᴡɴʟᴏᴀᴅᴇᴅ Aʟʟ Lᴇᴄᴛᴜʀᴇs SIR 👿🚀**")
 
 bot.run()
+
