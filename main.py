@@ -527,11 +527,7 @@ async def txt_handler(bot: Client, m: Message):
                 url = mpd
                 keys_string = " ".join([f"--key {key}" for key in keys])
 
-            elif "classplusapp.com/drm/" in url:
-                api_url = f"https://cpapi-rjbs-1l0p.onrender.com/extract_keys?url={url}@bots_updatee&user_id={USER_ID}"
-                mpd, keys = helper.get_mps_and_keys(api_url)
-                url = mpd
-                keys_string = " ".join([f"--key {key}" for key in keys])
+        
 
             elif any(domain in url for domain in [
                 'videos.classplusapp.com',
