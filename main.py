@@ -102,64 +102,6 @@ image_urls = [
     "https://graph.org/file/18829ff4b5e9d36c4dbb5-18179eb5a200a42df9.jpg",
 ]
 
-async def update_token_cp():
-    global TOKEN_CP
-    while True:
-        try:
-            async with httpx.AsyncClient() as client:
-                response = await client.get("https://jaatcptokenapi.vercel.app/api/jaatcptokengen")
-                if response.status_code == 200:
-                    data = response.json()
-                    new_token = data.get("token")  # Adjust based on API response structure
-                    if new_token:
-                        TOKEN_CP = new_token
-                        os.environ["TOKEN_CP"] = new_token
-                        # Update .env file
-                        env_file_path = '.env'
-                        env_content = ""
-                        if os.path.exists(env_file_path):
-                            with open(env_file_path, 'r') as file:
-                                env_content = file.read()
-                        token_regex = r'^TOKEN_CP=.*$'
-                        if re.search(token_regex, env_content, re.MULTILINE):
-                            env_content = re.sub(token_regex, f'TOKEN_CP={new_token}', env_content, flags=re.MULTILINE)
-                        else:
-                            env_content += f'\nTOKEN_CP={new_token}'
-                        with open(env_file_path, 'w') as file:
-                            file.write(env_content)
-                        logging.info(f"TOKEN_CP updated to: {new_token}")
-                    else:
-                        logging.error("No token found in API response")
-                else:
-                    logging.error(f"Failed to fetch token: HTTP {response.status_code}")
-        except Exception as e:
-            logging.error(f"Error updating TOKEN_CP: {str(e)}")
-        await asyncio.sleep(15 * 60)  # Wait 15 minutes before next update
-
-# Start the token update task after bot startup
-@bot.on_message(filters.command(["startx"]))
-async def startx_command(bot: Client, message: Message):
-    random_image_url = random.choice(image_urls)
-    caption = (
-        "**➦hᥱᥣᥣo bᥲbყ😉❤️**\n\n"
-        "☛ **ι ᥲm txt to vιdᥱo υρᥣoᥲdᥱr bot.**\n\n"
-        "☛ **for υsᥱ mᥱ sᥱᥒd /DRM**.\n\n"
-        "☛ **for gυιdᥱ sᥱᥒd /help**."
-    )
-    await bot.send_photo(
-        chat_id=message.chat.id,
-        photo=random_image_url,
-        caption=caption,
-        reply_markup=keyboard
-    )
-    # Start the token update task only once
-    if not hasattr(bot, "token_update_started"):
-        try:
-            bot.loop.create_task(update_token_cp())
-            logging.info("Token update task started on bot startup")
-            bot.token_update_started = True  # Flag to prevent multiple tasks
-        except Exception as e:
-            logging.error(f"Error starting token update task on startup: {str(e)}")
 
 @bot.on_message(filters.command("cookies") & filters.private)
 async def cookies_handler(client: Client, m: Message):
