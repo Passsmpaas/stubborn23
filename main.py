@@ -44,16 +44,14 @@ import jwt
 # Initialize the bot
 API_HASH = "0c9262b17a45cb67b447ffd8e38f1e4d"
 API_ID = "22274497"
-bot_token = os.getenv("BOT_TOKEN", "")  # Default to empty string if not set
+bot_token = "7588280553:AAEO-72h1FNyZi1tHPbUDQHjyZVwFMiBIYk"  # Default to empty string if not set
 MR = os.getenv("MR", "DefaultMR")       # Default to "DefaultMR" if not set
 TOKEN_CP = os.getenv("TOKEN_CP", "")    # Default to empty string if not set
 user_id = os.getenv("USER_ID", "")      # Default to empty string if not set
 os.environ["TOKEN_CP"] = TOKEN_CP       # Ensure environment is updated with initial value
 os.environ["USER_ID"] = user_id         # Ensure environment is updated with initial value
 
-if not bot_token:
-    logging.error("BOT_TOKEN not found in environment. Please set it in .env or environment variables.")
-    sys.exit(1)
+
 
 bot = Client("bot",
              api_id=API_ID,
