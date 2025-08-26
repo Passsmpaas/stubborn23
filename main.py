@@ -42,9 +42,9 @@ import ffmpeg
 import jwt
 
 # Initialize the bot
-API_HASH = "0c9262b17a45cb67b447ffd8e38f1e4d"
-API_ID = "22274497"
-bot_token = "7588280553:AAEO-72h1FNyZi1tHPbUDQHjyZVwFMiBIYk"  # Default to empty string if not set
+API_HASH = "511be78079ed5d4bd4c967bc7b5ee023"
+API_ID = "22470912"
+bot_token = "7254519583:AAEdEM7ct3pVEOwbBCGWJOWd7ghUETT-Yp0"  # Default to empty string if not set
 MR = os.getenv("MR", "DefaultMR")       # Default to "DefaultMR" if not set
 TOKEN_CP = os.getenv("TOKEN_CP", "")    # Default to empty string if not set
 user_id = os.getenv("USER_ID", "")      # Default to empty string if not set
